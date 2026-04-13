@@ -22,7 +22,7 @@ const listingSchema = new mongoose.Schema({
   category: {
     predefinedCategory: {
       type: [String],
-      choises: [
+      choices: [
         "Tv-spel",
         "Sci-fi",
         "Serietidningar",
@@ -48,8 +48,41 @@ const listingSchema = new mongoose.Schema({
   },
 
   date: {
-    type: 
-  }
+    type: Date,
+    required: true,
+  },
+
+  // Source - https://stackoverflow.com/a/58731454
+  // Posted by fseb
+  // Retrieved 2026-04-13, License - CC BY-SA 4.0
+  openingHours: [
+    {
+      day: { type: Date }, //mon - sun
+      times: [
+        {
+          start: { type: Date },
+          end: { type: Date },
+        },
+      ],
+    },
+  ],
+
+  location: {
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: true,
+    },
+    coordinates: {
+      type: [Number],
+      required: true,
+    },
+  },
+
+  website: {
+    type: String,
+    required: false,
+  },
 
   host: {
     type: mongoose.Schema.Types.ObjectId,
@@ -57,3 +90,7 @@ const listingSchema = new mongoose.Schema({
     required: false,
   },
 });
+
+const Listing = mongoose.model("Listing", listingSchema);
+
+export default Listing;
