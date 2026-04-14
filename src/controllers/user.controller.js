@@ -1,21 +1,50 @@
 import User from "../models/user.model.js";
 import asyncHandler from "express-async-handler";
+import bcrypt from "bcryptjs";
+import { generateToken } from "../token/webToken.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, isAdmin } = req.body;
+  const { name, email, password, confirmPassword, isAdmin } = req.body;
 
-  if (!name || !email || !password || !isAdmin) {
+  if (
+    !name ||
+    !email ||
+    !password ||
+    !confirmPassword ||
+    isAdmin == undefined
+  ) {
     return res.status(400).json({ message: "Fel: vänligen ange alla fält" });
   }
+
+  if (confirmPassword !== password) {
+    return res.status(400).json({ message: "Lösenorden matchar inte" });
+  }
+
+  const trimmedEmail = email.toLowerCase().trim().replace(/\s/g, "");
+  const existingUser = await User.findOne({ email: trimmedEmail });
+
+  if (existingUser) {
+    return res.status(401).json({
+      message:
+        "Denna epostadress används redan av ett annant konto. Vänligen ange en annan epostadress",
+    });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
 
   const user = await User.create({
     name: name,
     email: email,
-    password: password,
+    password: hashedPassword,
     isAdmin: isAdmin,
   });
 
-  res.status(201).json(user);
+  const userToken = generateToken(user);
+
+  res
+    .status(201)
+    .json({ _id: user._id, email: trimmedEmail, userToken: userToken });
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
@@ -25,7 +54,8 @@ export const loginUser = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Fel: vänligen ange alla fält" });
   }
 
-  const user = await User.findOne({ email: email }).exec();
+  const trimmedEmail = email.toLowerCase().trim().replace(/\s/g, "");
+  const user = await User.findOne({ email: trimmedEmail }).exec();
 
   if (!user) {
     return res.status(401).json({
@@ -33,7 +63,22 @@ export const loginUser = asyncHandler(async (req, res) => {
     });
   }
 
-  res.status(200).json({ _id: user._id, name: user.name, email: user.email });
+  const matchPassword = await bcrypt.compare(password, user.password);
+
+  if (!matchPassword) {
+    return res.status(400).json({ message: "Fel lösenord" });
+  }
+
+  const userToken = generateToken(user);
+
+  res
+    .status(200)
+    .json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      userToken: userToken,
+    });
 });
 
 export const getUsers = asyncHandler(async (req, res) => {
