@@ -1,28 +1,59 @@
 import mongoose from "mongoose";
 
-const imageSchema = new mongoose.Schema({
-  url: {
-    type: String,
-    required: true,
+const imageSchema = new mongoose.Schema(
+  {
+    url: {
+      type: String,
+      required: true,
+    },
+    publicId: {
+      type: String,
+      required: true,
+    },
+    alt: {
+      type: String,
+      default: "",
+    },
   },
-  publicId: {
-    type: String,
-    required: true,
+  { _id: false },
+);
+
+const openingHoursSchema = new mongoose.Schema(
+  {
+    day: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 6,
+    },
+    times: [
+      {
+        start: {
+          type: String,
+          required: true,
+        },
+        end: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
   },
-  alt: {
-    type: String,
-    default: "",
-  },
-});
+  { _id: false },
+);
 
 const listingSchema = new mongoose.Schema({
   title: { type: String, required: true, unique: true },
   description: { type: String, required: true },
-  type: ["Event", "Butik", "Mässa", "Loppis"],
+  type: {
+    type: String,
+    enum: ["Event", "Butik", "Mässa", "Loppis"],
+    required: true,
+  },
   category: {
     predefinedCategory: {
       type: [String],
-      choices: [
+      enum: [
         "Tv-spel",
         "Sci-fi",
         "Serietidningar",
@@ -52,20 +83,10 @@ const listingSchema = new mongoose.Schema({
     required: true,
   },
 
-  // Source - https://stackoverflow.com/a/58731454
-  // Posted by fseb
-  // Retrieved 2026-04-13, License - CC BY-SA 4.0
-  openingHours: [
-    {
-      day: { type: Date }, //mon - sun
-      times: [
-        {
-          start: { type: Date },
-          end: { type: Date },
-        },
-      ],
-    },
-  ],
+  openingHours: {
+    type: [openingHoursSchema],
+    default: [],
+  },
 
   location: {
     type: {
@@ -90,6 +111,18 @@ const listingSchema = new mongoose.Schema({
     required: false,
   },
 });
+
+// 🌍 Geo index (SUPER viktigt för sök!)
+listingSchema.index({ location: "2dsphere" });
+
+// 🔍 Text search index
+listingSchema.index({
+  title: "text",
+  description: "text",
+});
+
+// ⚡ Kombinerade index (för filter)
+listingSchema.index({ type: 1, date: 1 });
 
 const Listing = mongoose.model("Listing", listingSchema);
 
