@@ -108,7 +108,7 @@ const listingSchema = new mongoose.Schema({
   host: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: false,
+    required: true,
   },
 });
 

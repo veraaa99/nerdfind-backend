@@ -12,8 +12,8 @@ export const createListing = asyncHandler(async (req, res) => {
     openingHours,
     location,
     website,
-    host,
   } = req.body;
+  const host = req.user._id;
 
   if (
     !title ||
@@ -44,7 +44,7 @@ export const createListing = asyncHandler(async (req, res) => {
     openingHours,
     location,
     website,
-    host,
+    host: host,
   });
 
   res.status(201).json(listing);

@@ -71,14 +71,12 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   const userToken = generateToken(user);
 
-  res
-    .status(200)
-    .json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      userToken: userToken,
-    });
+  res.status(200).json({
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    userToken: userToken,
+  });
 });
 
 export const getUsers = asyncHandler(async (req, res) => {
@@ -93,7 +91,7 @@ export const getUsers = asyncHandler(async (req, res) => {
 
 export const getUserById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const user = await User.findById(id).exec();
+  const user = await User.findById(id).select("-password").exec();
 
   if (!user) {
     return res.status(404).json({ message: "Användaren kunde inte hittas" });
