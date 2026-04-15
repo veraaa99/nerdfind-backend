@@ -99,3 +99,11 @@ export const getUserById = asyncHandler(async (req, res) => {
 
   res.status(200).json(user);
 });
+
+export const checkToken = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    _id: req.user._id,
+    email: req.user.email,
+    role: req.user.role,
+  });
+});
