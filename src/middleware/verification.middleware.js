@@ -20,3 +20,16 @@ export const verifyToken = (req, res, next) => {
     return res.status(401).json({ message: "Du är inte verifierad" });
   }
 };
+
+export const verifyHost = (isHost) => {
+  return (req, res, next) => {
+    if (!req.user.isHost == isHost) {
+      return res.status(403).json({
+        message:
+          "Åtkomst nekad: Denna åtgärd kan endast utföras av ett konto som tillhör en arrangör.",
+      });
+    }
+
+    next();
+  };
+};

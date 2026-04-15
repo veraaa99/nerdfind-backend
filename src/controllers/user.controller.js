@@ -4,15 +4,9 @@ import bcrypt from "bcryptjs";
 import { generateToken } from "../token/webToken.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, confirmPassword, isAdmin } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
-  if (
-    !name ||
-    !email ||
-    !password ||
-    !confirmPassword ||
-    isAdmin == undefined
-  ) {
+  if (!name || !email || !password || !confirmPassword) {
     return res.status(400).json({ message: "Fel: vänligen ange alla fält" });
   }
 
@@ -37,7 +31,6 @@ export const registerUser = asyncHandler(async (req, res) => {
     name: name,
     email: email,
     password: hashedPassword,
-    isAdmin: isAdmin,
   });
 
   const userToken = generateToken(user);
@@ -104,6 +97,6 @@ export const checkToken = asyncHandler(async (req, res) => {
   res.status(200).json({
     _id: req.user._id,
     email: req.user.email,
-    role: req.user.role,
+    isHost: req.user.isHost,
   });
 });

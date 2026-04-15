@@ -34,6 +34,15 @@ export const createListing = asyncHandler(async (req, res) => {
     website = undefined;
   }
 
+  // if (req.user.isHost == false) {
+  //   return res
+  //     .status(403)
+  //     .json({
+  //       message:
+  //         "Åtkomst nekad: Denna åtgärd kan endast utföras av ett konto som tillhör en arrangör.",
+  //     });
+  // }
+
   const listing = await Listing.create({
     title,
     description,

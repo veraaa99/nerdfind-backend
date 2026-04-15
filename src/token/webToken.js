@@ -6,6 +6,7 @@ export const generateToken = (user) => {
       userInfo: {
         _id: user._id,
         email: user.email,
+        isHost: user.isHost,
       },
     },
     process.env.SECRET_ACCESS_TOKEN,

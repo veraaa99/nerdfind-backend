@@ -4,11 +4,14 @@ import {
   getListingById,
   getListings,
 } from "../controllers/listing.controller.js";
-import { verifyToken } from "../middleware/verification.middleware.js";
+import {
+  verifyHost,
+  verifyToken,
+} from "../middleware/verification.middleware.js";
 
 const router = express.Router();
 
-router.post("/", verifyToken, createListing);
+router.post("/", verifyToken, verifyHost(true), createListing);
 
 router.get("/", getListings);
 router.get("/:id", getListingById);
