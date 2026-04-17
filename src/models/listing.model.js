@@ -89,6 +89,7 @@ const listingSchema = new mongoose.Schema({
   },
 
   location: {
+    city: { type: String, reuired: true },
     type: {
       type: String,
       enum: ["Point"],
