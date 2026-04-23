@@ -1,5 +1,12 @@
+import ImageKit from "imagekit";
 import Listing from "../models/listing.model.js";
 import asyncHandler from "express-async-handler";
+
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+});
 
 export const createListing = asyncHandler(async (req, res) => {
   const {
@@ -80,3 +87,8 @@ export const getListingById = asyncHandler(async (req, res) => {
 
   res.status(200).json(listing);
 });
+
+export const getImageKitAuth = (req, res) => {
+  const authParams = imagekit.getAuthenticationParameters();
+  res.json(authParams);
+};
