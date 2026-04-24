@@ -5,6 +5,7 @@ import {
   loginUser,
   getUserById,
   checkToken,
+  getUserProfile,
 } from "../controllers/user.controller.js";
 import { verifyToken } from "../middleware/verification.middleware.js";
 
@@ -14,7 +15,8 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 
 router.get("/", getUsers);
-router.get("/:id", verifyToken, getUserById);
+router.get("/profile", verifyToken, getUserProfile);
 router.get("/check", verifyToken, checkToken);
+router.get("/:id", verifyToken, getUserById);
 
 export default router;

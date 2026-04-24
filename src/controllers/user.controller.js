@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { generateToken } from "../token/webToken.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
+  const { name, email, password, confirmPassword, isHost } = req.body;
 
   if (!name || !email || !password || !confirmPassword) {
     return res.status(400).json({ message: "Fel: vänligen ange alla fält" });
@@ -22,6 +22,7 @@ export const registerUser = asyncHandler(async (req, res) => {
       message:
         "Denna epostadress används redan av ett annant konto. Vänligen ange en annan epostadress",
     });
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);
@@ -31,6 +32,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     name: name,
     email: email,
     password: hashedPassword,
+    isHost: isHost,
   });
 
   const userToken = generateToken(user);
@@ -68,6 +70,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    isHost: user.isHost,
     userToken: userToken,
   });
 });
@@ -86,6 +89,15 @@ export const getUserById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(id).select("-password").exec();
 
+  if (!user) {
+    return res.status(404).json({ message: "Användaren kunde inte hittas" });
+  }
+
+  res.status(200).json(user);
+});
+
+export const getUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id, "-password").exec();
   if (!user) {
     return res.status(404).json({ message: "Användaren kunde inte hittas" });
   }

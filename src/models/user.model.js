@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
   },
   isHost: {
     type: Boolean,
-    default: false,
+    required: true,
   },
   savedListings: {
     type: mongoose.Schema.Types.Array,
