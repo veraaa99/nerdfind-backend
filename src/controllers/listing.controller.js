@@ -9,7 +9,7 @@ const imagekit = new ImageKit({
 });
 
 export const createListing = asyncHandler(async (req, res) => {
-  const {
+  let {
     title,
     description,
     type,
@@ -37,18 +37,20 @@ export const createListing = asyncHandler(async (req, res) => {
       .json({ message: "Fel: vänligen ange alla obligatoriska fält" });
   }
 
+  if (date == "" || !date) {
+    date = undefined;
+  }
+
   if (website == "" || !website) {
     website = undefined;
   }
 
-  // if (req.user.isHost == false) {
-  //   return res
-  //     .status(403)
-  //     .json({
-  //       message:
-  //         "Åtkomst nekad: Denna åtgärd kan endast utföras av ett konto som tillhör en arrangör.",
-  //     });
-  // }
+  if (req.user.isHost == false) {
+    return res.status(403).json({
+      message:
+        "Åtkomst nekad: Denna åtgärd kan endast utföras av ett konto som tillhör en arrangör.",
+    });
+  }
 
   const listing = await Listing.create({
     title,

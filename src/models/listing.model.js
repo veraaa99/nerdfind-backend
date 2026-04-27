@@ -21,23 +21,27 @@ const imageSchema = new mongoose.Schema(
 const openingHoursSchema = new mongoose.Schema(
   {
     day: {
-      type: Number,
+      type: String,
       required: true,
-      min: 0,
-      max: 6,
+      min: 1,
     },
-    times: [
-      {
-        start: {
-          type: String,
-          required: true,
-        },
-        end: {
-          type: String,
-          required: true,
+    times: {
+      start: {
+        type: String,
+        required: true,
+        validate: {
+          validator: function (v) {
+            if (this.start === "STÄNGT") return v == null;
+            return true;
+          },
+          message: "end kan inte sättas om start är 'STÄNGT'",
         },
       },
-    ],
+      end: {
+        type: String,
+        required: false,
+      },
+    },
   },
   { _id: false },
 );
@@ -86,6 +90,13 @@ const listingSchema = new mongoose.Schema({
   openingHours: {
     type: [openingHoursSchema],
     default: [],
+    validate: {
+      validator: function (items) {
+        const days = items.map((i) => i.day);
+        return new Set(days).size === days.length;
+      },
+      message: "Vänligen välj en dag som inte redan är vald",
+    },
   },
 
   location: {
@@ -113,16 +124,14 @@ const listingSchema = new mongoose.Schema({
   },
 });
 
-// 🌍 Geo index (SUPER viktigt för sök!)
+// QUERY INDEX FUNCTIONS
 listingSchema.index({ location: "2dsphere" });
 
-// 🔍 Text search index
 listingSchema.index({
   title: "text",
   description: "text",
 });
 
-// ⚡ Kombinerade index (för filter)
 listingSchema.index({ type: 1, date: 1 });
 
 const Listing = mongoose.model("Listing", listingSchema);
