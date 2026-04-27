@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import asyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../token/webToken.js";
+import Listing from "../models/listing.model.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, confirmPassword, isHost } = req.body;
@@ -111,4 +112,52 @@ export const checkToken = asyncHandler(async (req, res) => {
     email: req.user.email,
     isHost: req.user.isHost,
   });
+});
+
+export const saveListing = asyncHandler(async (req, res) => {
+  const { listingId } = req.params;
+  const user = await User.findById(req.user._id, "-password").exec();
+
+  if (!user) {
+    return res.status(404).json({
+      message:
+        "Fel: Användaren kunde inte hittas. Du behöver vara inloggad för att kunna spara en annons",
+    });
+  }
+
+  const listing = await Listing.findById(listingId).exec();
+
+  if (!listing) {
+    return res.status(404).json({ message: "Fel: Annonen kunde inte hittas" });
+  }
+
+  const isListingSaved = user.savedListings.includes(listingId);
+
+  if (isListingSaved) {
+    user.savedListings = user.savedListings.filter(
+      (id) => id.toString() !== listingId,
+    );
+  } else {
+    user.savedListings.push(listingId);
+  }
+
+  await user.save();
+
+  res
+    .status(200)
+    .json({ savedListings: user.savedListings, saved: !isListingSaved });
+});
+
+export const getUserSavedListings = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id, "-password").populate(
+    "savedListings",
+  );
+
+  if (!user) {
+    return res.status(404).json({
+      message: "Fel: Användaren kunde inte hittas.",
+    });
+  }
+
+  res.status(200).json(user.savedListings);
 });

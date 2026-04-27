@@ -18,11 +18,12 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
-  savedListings: {
-    type: mongoose.Schema.Types.Array,
-    ref: "Listing",
-    default: [],
-  },
+  savedListings: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Listing",
+    },
+  ],
 });
 
 const User = mongoose.model("User", userSchema);

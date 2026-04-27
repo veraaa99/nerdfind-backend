@@ -23,7 +23,7 @@ export const verifyToken = (req, res, next) => {
 
 export const verifyHost = (isHost) => {
   return (req, res, next) => {
-    if (!req.user.isHost == isHost) {
+    if (req.user.isHost !== isHost) {
       return res.status(403).json({
         message:
           "Åtkomst nekad: Denna åtgärd kan endast utföras av ett konto som tillhör en arrangör.",
