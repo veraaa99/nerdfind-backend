@@ -17,6 +17,6 @@ router.post("/login", loginUser);
 router.get("/", getUsers);
 router.get("/profile", verifyToken, getUserProfile);
 router.get("/check", verifyToken, checkToken);
-router.get("/:id", verifyToken, getUserById);
+router.get("/:id", getUserById);
 
 export default router;
