@@ -96,6 +96,153 @@ export const getImageKitAuth = (req, res) => {
   res.json(authParams);
 };
 
+export const getListingsByFilter = asyncHandler(async (req, res) => {
+  const query = req.query;
+  const numberOfFilters = Object.keys(query).length;
+  const listings = await Listing.find().exec();
+
+  let filteredListings = [];
+
+  if (numberOfFilters > 0) {
+    filteredListings = listings.filter((listing) => {
+      // Location
+      if (query.location) {
+        if (Array.isArray(query.location)) {
+          const locations = query.location.map((location) =>
+            location.toLowerCase(),
+          );
+          if (
+            !locations.some((l) =>
+              listing.location.city.toLowerCase().includes(l),
+            )
+          ) {
+            return false;
+          }
+        } else {
+          if (
+            !listing.location.city
+              .toLowerCase()
+              .includes(query.location.toLowerCase())
+          ) {
+            return false;
+          }
+        }
+      }
+
+      // Type
+      if (query.type) {
+        if (listing.type.toLowerCase() !== query.type.toLowerCase()) {
+          return false;
+        }
+      }
+
+      // Category
+      if (query.category) {
+        if (listing.category.predefinedCategory) {
+          if (Array.isArray(query.category)) {
+            const queryCategories = query.category.map((category) =>
+              category.toLowerCase(),
+            );
+            const listingCategories = listing.category.predefinedCategory.map(
+              (category) => category.toLowerCase(),
+            );
+
+            const matchingCategories = listingCategories.filter((category) =>
+              queryCategories.includes(category.toLowerCase()),
+            );
+
+            if (matchingCategories.length > 0) {
+              return true;
+            } else {
+              return false;
+            }
+          } else {
+            const listingCategories = listing.category.predefinedCategory.map(
+              (category) => category.toLowerCase(),
+            );
+
+            if (listingCategories.includes(query.category.toLowerCase())) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+
+        if (listing.category.customCategory) {
+          if (Array.isArray(query.category)) {
+            const queryCategories = query.category.map((category) =>
+              category.toLowerCase(),
+            );
+            const listingCategories = listing.category.customCategory.map(
+              (category) => category.toLowerCase(),
+            );
+
+            const matchingCategories = listingCategories.filter((category) =>
+              queryCategories.includes(category.toLowerCase()),
+            );
+
+            console.log(matchingCategories);
+
+            if (matchingCategories.length > 0) {
+              return true;
+            } else {
+              return false;
+            }
+          } else {
+            const listingCategories = listing.category.customCategory.map(
+              (category) => category.toLowerCase(),
+            );
+
+            if (listingCategories.includes(category.toLowerCase())) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      }
+
+      // searchString
+      if (query.searchString) {
+        const string = query.searchString.toLowerCase().trim();
+
+        if (listing.title.toLowerCase().includes(string)) {
+          return true;
+        } else if (listing.location.city.toLowerCase().includes(string)) {
+          return true;
+        } else if (listing.type.toLowerCase().includes(string)) {
+          return true;
+        } else if (listing.description.toLowerCase().includes(string)) {
+          return true;
+        } else if (
+          listing.category.predefinedCategory &&
+          listing.category.predefinedCategory.filter((category) =>
+            category.toLowerCase().includes(string),
+          ).length > 0
+        ) {
+          return true;
+        } else if (
+          listing.category.customCategory &&
+          listing.category.customCategory.filter((category) =>
+            category.toLowerCase().includes(string),
+          ).length > 0
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }
+
+  console.log(filteredListings);
+
+  res.status(200).json(filteredListings);
+});
+
 export const getUserSavedListings = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id, "-password").populate(
     "savedListings",

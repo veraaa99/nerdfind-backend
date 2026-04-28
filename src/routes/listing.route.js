@@ -3,6 +3,7 @@ import {
   createListing,
   getListingById,
   getListings,
+  getListingsByFilter,
   getUserCreatedListings,
   getUserSavedListings,
 } from "../controllers/listing.controller.js";
@@ -16,6 +17,7 @@ const router = express.Router();
 router.post("/", verifyToken, verifyHost(true), createListing);
 
 router.get("/", getListings);
+router.get("/search", getListingsByFilter);
 router.get("/savedlistings", verifyToken, getUserSavedListings);
 router.get(
   "/createdlistings",
