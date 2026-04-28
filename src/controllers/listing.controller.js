@@ -1,6 +1,7 @@
 import ImageKit from "imagekit";
 import Listing from "../models/listing.model.js";
 import asyncHandler from "express-async-handler";
+import User from "../models/user.model.js";
 
 const imagekit = new ImageKit({
   publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
@@ -94,3 +95,43 @@ export const getImageKitAuth = (req, res) => {
   const authParams = imagekit.getAuthenticationParameters();
   res.json(authParams);
 };
+
+export const getUserSavedListings = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id, "-password").populate(
+    "savedListings",
+  );
+
+  if (!user) {
+    return res.status(404).json({
+      message: "Fel: Användaren kunde inte hittas.",
+    });
+  }
+
+  res.status(200).json(user.savedListings);
+});
+
+export const getUserCreatedListings = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id, "-password").exec();
+
+  if (!user) {
+    return res.status(404).json({
+      message: "Fel: Användaren kunde inte hittas.",
+    });
+  }
+  if (user.isHost == false) {
+    return res.status(403).json({
+      message:
+        "Åtkomst nekad: Detta är inte ett företagskonto och kan inte skapa nya annonser.",
+    });
+  }
+
+  const userCreatedListings = await Listing.find({ host: user._id }).exec();
+
+  if (userCreatedListings.length == 0) {
+    return res.status(200).json({
+      message: "Inga annonser sparade än.",
+    });
+  }
+
+  res.status(200).json(userCreatedListings);
+});

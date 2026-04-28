@@ -147,17 +147,3 @@ export const saveListing = asyncHandler(async (req, res) => {
     .status(200)
     .json({ savedListings: user.savedListings, saved: !isListingSaved });
 });
-
-export const getUserSavedListings = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id, "-password").populate(
-    "savedListings",
-  );
-
-  if (!user) {
-    return res.status(404).json({
-      message: "Fel: Användaren kunde inte hittas.",
-    });
-  }
-
-  res.status(200).json(user.savedListings);
-});
