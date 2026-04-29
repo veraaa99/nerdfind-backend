@@ -84,7 +84,7 @@ const listingSchema = new mongoose.Schema({
 
   date: {
     type: Date,
-    required: true,
+    required: false,
   },
 
   openingHours: {
@@ -100,7 +100,8 @@ const listingSchema = new mongoose.Schema({
   },
 
   location: {
-    city: { type: String, reuired: true },
+    address: { type: String, required: true },
+    city: { type: String, required: true },
     type: {
       type: String,
       enum: ["Point"],

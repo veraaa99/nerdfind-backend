@@ -29,7 +29,6 @@ export const createListing = asyncHandler(async (req, res) => {
     !type ||
     !category ||
     !images ||
-    !date ||
     !openingHours ||
     !location
   ) {
@@ -182,8 +181,6 @@ export const getListingsByFilter = asyncHandler(async (req, res) => {
               queryCategories.includes(category.toLowerCase()),
             );
 
-            console.log(matchingCategories);
-
             if (matchingCategories.length > 0) {
               return true;
             } else {
@@ -209,7 +206,7 @@ export const getListingsByFilter = asyncHandler(async (req, res) => {
 
         if (listing.title.toLowerCase().includes(string)) {
           return true;
-        } else if (listing.location.city.toLowerCase().includes(string)) {
+        } else if (listing.location.address.toLowerCase().includes(string)) {
           return true;
         } else if (listing.type.toLowerCase().includes(string)) {
           return true;
@@ -237,8 +234,6 @@ export const getListingsByFilter = asyncHandler(async (req, res) => {
       return true;
     });
   }
-
-  console.log(filteredListings);
 
   res.status(200).json(filteredListings);
 });
