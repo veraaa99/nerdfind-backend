@@ -130,8 +130,15 @@ export const getListingsByFilter = asyncHandler(async (req, res) => {
 
       // Type
       if (query.type) {
-        if (listing.type.toLowerCase() !== query.type.toLowerCase()) {
-          return false;
+        if (Array.isArray(query.type)) {
+          const types = query.type.map((type) => type.toLowerCase());
+          if (!types.some((t) => listing.type.toLowerCase().includes(t))) {
+            return false;
+          }
+        } else {
+          if (!listing.type.toLowerCase().includes(query.type.toLowerCase())) {
+            return false;
+          }
         }
       }
 
