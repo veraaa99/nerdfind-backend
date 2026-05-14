@@ -40,7 +40,12 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   res
     .status(201)
-    .json({ _id: user._id, email: trimmedEmail, userToken: userToken });
+    .json({
+      _id: user._id,
+      email: trimmedEmail,
+      userToken: userToken,
+      isHost: isHost,
+    });
 });
 
 export const loginUser = asyncHandler(async (req, res) => {

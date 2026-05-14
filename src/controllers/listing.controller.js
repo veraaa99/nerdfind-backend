@@ -276,11 +276,5 @@ export const getUserCreatedListings = asyncHandler(async (req, res) => {
 
   const userCreatedListings = await Listing.find({ host: user._id }).exec();
 
-  if (userCreatedListings.length == 0) {
-    return res.status(200).json({
-      message: "Inga annonser sparade än.",
-    });
-  }
-
   res.status(200).json(userCreatedListings);
 });
