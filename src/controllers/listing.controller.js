@@ -128,6 +128,37 @@ export const getListingsByFilter = asyncHandler(async (req, res) => {
         }
       }
 
+      // searchString
+      if (query.searchString) {
+        const string = query.searchString.toLowerCase().trim();
+
+        if (listing.title.toLowerCase().includes(string)) {
+          return true;
+        } else if (listing.location.address.toLowerCase().includes(string)) {
+          return true;
+        } else if (listing.type.toLowerCase().includes(string)) {
+          return true;
+        } else if (listing.description.toLowerCase().includes(string)) {
+          return true;
+        } else if (
+          listing.category.predefinedCategory &&
+          listing.category.predefinedCategory.filter((category) =>
+            category.toLowerCase().includes(string),
+          ).length > 0
+        ) {
+          return true;
+        } else if (
+          listing.category.customCategory &&
+          listing.category.customCategory.filter((category) =>
+            category.toLowerCase().includes(string),
+          ).length > 0
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
       // Type
       if (query.type) {
         if (Array.isArray(query.type)) {
@@ -204,37 +235,6 @@ export const getListingsByFilter = asyncHandler(async (req, res) => {
               return false;
             }
           }
-        }
-      }
-
-      // searchString
-      if (query.searchString) {
-        const string = query.searchString.toLowerCase().trim();
-
-        if (listing.title.toLowerCase().includes(string)) {
-          return true;
-        } else if (listing.location.address.toLowerCase().includes(string)) {
-          return true;
-        } else if (listing.type.toLowerCase().includes(string)) {
-          return true;
-        } else if (listing.description.toLowerCase().includes(string)) {
-          return true;
-        } else if (
-          listing.category.predefinedCategory &&
-          listing.category.predefinedCategory.filter((category) =>
-            category.toLowerCase().includes(string),
-          ).length > 0
-        ) {
-          return true;
-        } else if (
-          listing.category.customCategory &&
-          listing.category.customCategory.filter((category) =>
-            category.toLowerCase().includes(string),
-          ).length > 0
-        ) {
-          return true;
-        } else {
-          return false;
         }
       }
 
